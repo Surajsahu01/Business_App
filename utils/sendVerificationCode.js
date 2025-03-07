@@ -1,18 +1,30 @@
+import e from "express";
 import { generateVerificationOtpEmailTemplate } from "./emailTemplate.js";
-import { sentEmail } from "./sentEmail.js";
+import { sendEmail } from "./sentEmail.js";
 
-export const sendVerificationCode = async ( verificationCode, email, res) =>{
+
+
+export const sendVerificationCode = async (email, verificationCode, res) =>{
     try {
+        // Validate email format
+        if (!email || typeof email !== "string" || !email.includes("@")) {
+            console.error("Invalid recipient email:", email);
+            return res.status(400).json({ message: "Invalid email address" });
+        }
+
         const message = generateVerificationOtpEmailTemplate(verificationCode);
-        sentEmail({
+        const emailSent = await sendEmail({
             email,
             subject: "Verification Code(Jai Maa Bhawani Body Makers)",
             message,
         });
-        res.status(400).json({message: "verification code sent successfully"});
+        console.log("Verification code sent successfully",emailSent);
+        
+
+        res.status(200).json({message: "verification code sent successfully"});
         
     } catch (error) {
-        console.log(error);
+        console.log("Error sending verification email:", error);
         res.status(500).json({message: "verification code not sent"});
         
     }

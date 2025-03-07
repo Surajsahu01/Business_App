@@ -13,21 +13,20 @@ export const register = async (req, res) => {
         }
         const isRegistered = await User.findOne({email, accountVerified:true})
         if(isRegistered){
-            return res.ststus(400).JSON({message: "User Already Registered"})
+            return res.status(400).json({message: "User Already Registered"})
         }
-        const resgistraionAttempt = await User.find({
+        const registrationAttempt = await User.find({
             email,
             accountVerified: false,
         });
-        if(resgistraionAttempt.length >= 5){
-            return res.ststus(400).JSON({
+        if(registrationAttempt.length >= 5){
+            return res.status(400).json({
                 message: "Too many registration attempts, please try again later" 
-            }
-        );
+            });
 
         }
-        if (password.length <8 || password.length > 16){
-            return res.status(400).JSON({
+        if(password.length <8 || password.length > 16){
+            return res.status(400).json({
                 message: "Password must be Between 8 and 16 Characters."
             })
         }
@@ -37,16 +36,27 @@ export const register = async (req, res) => {
             name,
             email,
             password: hashedPassword,
+            
 
     })
+
+    console.log("User created successfully:", user);
+    console.log("User email:", user.email);
+
     const verificationCode = await user.generateVerificationCode();
     await user.save();
-    sendVerificationCode(email, verificationCode, res);
+    sendVerificationCode(user.email, verificationCode, res);
         
     } catch (error) {
-        console.log(error);
+        // console.log("Error in registration",error);
+        if(error.code === 11000){
+            return res.status(400).json({
+                message: "User Already Registered"
+            })
+        }
+
         res.status(500).json({
-            message: "Internal Server Error"
+            error: "Internal Server Error"
         })
         
     }

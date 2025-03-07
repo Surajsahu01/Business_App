@@ -59,7 +59,7 @@ const UserSchema  = new mongoose.Schema({
 UserSchema.methods.generateVerificationCode = function () {
     const generateRandomDigitNumber = () => {
         const firstDigit = Math.floor(Math.random() * 9) + 1;
-        const remanigDigits = Math.floor(Math.random() * 10000).toString().padStart(4, 0);
+        const remanigDigits = Math.floor(Math.random() * 10000).toString().padStart(5, 0);
 
         return parseInt(firstDigit + remanigDigits);
     }
