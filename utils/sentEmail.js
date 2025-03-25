@@ -5,18 +5,18 @@ config({path: "./config/config.env"});
 
 
 export const sendEmail = async ({email, subject, message}) =>{
-    console.log(
-        "SMTP Credentials: ",{
-            host: process.env.SMTP_HOST,
-            service: process.env.SMTP_SERVICE,
-            port: process.env.SMTP_PORT,
-            user: process.env.SMTP_MAIL,
-            pass: process.env.SMTP_PASSWORD ? "Loded" : "Missing"
+    // console.log(
+    //     "SMTP Credentials: ",{
+    //         host: process.env.SMTP_HOST,
+    //         service: process.env.SMTP_SERVICE,
+    //         port: process.env.SMTP_PORT,
+    //         user: process.env.SMTP_MAIL,
+    //         pass: process.env.SMTP_PASSWORD ? "Loded" : "Missing"
             
           
-        }
-    );
-    console.log("Recipient Email:", email);
+    //     }
+    // );
+    // console.log("Recipient Email:", email);
     if (!email) {
         throw new Error("Recipient email is missing!");
     }

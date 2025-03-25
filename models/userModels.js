@@ -1,5 +1,5 @@
-
 import mongoose from "mongoose";
+import bcrypt from "bcrypt";
 
 const UserSchema  = new mongoose.Schema({
     name: {
@@ -47,7 +47,9 @@ const UserSchema  = new mongoose.Schema({
         publice_id: String,
         url: String,
     },
-    verificationCode: Number,
+    verificationCode: {
+        type: String,  // ✅ Change from Number to String
+    },
     verificationCodeExpire: Date,
     resetPasswordToken: String,
     resetPasswordExpire: Date, 
@@ -56,18 +58,14 @@ const UserSchema  = new mongoose.Schema({
     timestamps: true,
 }
 );
-UserSchema.methods.generateVerificationCode = function () {
-    const generateRandomDigitNumber = () => {
-        const firstDigit = Math.floor(Math.random() * 9) + 1;
-        const remanigDigits = Math.floor(Math.random() * 10000).toString().padStart(5, 0);
 
-        return parseInt(firstDigit + remanigDigits);
-    }
-
-    this.verificationCode = generateRandomDigitNumber();
+UserSchema.methods.generateVerificationCode = async function () {
+    const otp = Math.floor(100000 + Math.random() * 900000).toString(); 
+    const salt = await bcrypt.genSalt(10);
+    this.verificationCode = await bcrypt.hash(otp, salt);
     this.verificationCodeExpire = Date.now() + 10 * 60 * 1000;
-    return this.verificationCode;
- }
+    return otp;  
+};
 
 const User = mongoose.model("User", UserSchema);
 export default User;

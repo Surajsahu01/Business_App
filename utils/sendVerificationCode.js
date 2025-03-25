@@ -1,8 +1,5 @@
-import e from "express";
 import { generateVerificationOtpEmailTemplate } from "./emailTemplate.js";
 import { sendEmail } from "./sentEmail.js";
-
-
 
 export const sendVerificationCode = async (email, verificationCode, res) =>{
     try {
