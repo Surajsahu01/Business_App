@@ -1,31 +1,43 @@
 import cloudinary from 'cloudinary';
-import Truck from '../models/Truck.js';
 import dotenv from 'dotenv';
+import Truck from '../models/truckModel.js';
 
 dotenv.config();
 cloudinary.v2.config({
-    cloud_name: process.env.CLOUDINARY_CLOUD_NAME,
-    api_key: process.env.CLOUDINARY_API_KEY,
-    api_secret: process.env.CLOUDINARY_API_SECRET,
+    cloud_name: process.env.CLOUD_NAME,
+    api_key: process.env.CLOUD_API_KEY,
+    api_secret: process.env.CLOUD_API_SECRET,
 })
 
 export const addTruck = async (req, res) => {
     try {
-        const { name, description, price, image } = req.body;
-        if (!name || !description || !price || !image) {
+        const { companyName, modelNumber, description} = req.body;
+
+        if (!req.file) {
+            return res.status(400).json({ message: "Please upload an image" });
+        }
+
+        if (!companyName || !modelNumber || !description) {
             return res.status(400).json({ message: "Please enter all fields" });
         }
 
-        const result = await cloudinary.v2.uploader.upload(image, {
+        // Ensure price is a number
+        // const truckPrice = parseFloat(price);
+        // if (isNaN(truckPrice)) {
+        //     return res.status(400).json({ message: "Price must be a valid number" });
+        // }
+
+        const result = await cloudinary.v2.uploader.upload(req.file.path, {
             folder: 'trucks',
             width: 500,
             height: 500,            
             crop: 'scale',
+            quality: 80,
         });        
         const newTruck = await Truck.create({
-            name,
+            companyName,
+            modelNumber,
             description,
-            price,
             image: {
                 public_id: result.public_id,
                 url: result.secure_url,
@@ -40,11 +52,31 @@ export const addTruck = async (req, res) => {
 
 export const getTrucks = async (req, res) => {
     try {
-        const trucks = await Truck.find();
+        const trucks = await Truck.find().select("companyName description modelNumber image");
+
+        if (trucks.length === 0) {
+            return res.status(404).json({ message: "No trucks found" });
+        }
         res.status(200).json(trucks);
     } catch (error) {
         console.error("Error in getTrucks:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 };
+
+export const getTruckById = async (req, res) =>{
+    const truckId = req.params.id;
+    try {
+        const truck = await Truck.findById(truckId)
+        if (!truck) {
+            return res.status(404).json({ message: "Truck not found" });
+        }
+        res.status(200).json(truck);
+        
+    } catch (error) {
+        console.error("Error in getTruckById:", error);
+        res.status(500).json({ message: "Internal server error" });
+        
+    }
+}
        
