@@ -1,5 +1,5 @@
 import express from "express";
-import { addTruck, getTrucks, getTruckById, updateTruck } from "../controllers/truckController.js";
+import { addTruck, getTrucks, getTruckById, updateTruck, deleteTruck } from "../controllers/truckController.js";
 import multer from "multer";
 import { authenticateUser, authorization } from "../authentication/userAuth.js";
 
@@ -12,5 +12,6 @@ router.post("/AddTruck",upload.single("image"), authenticateUser, authorization(
 router.get("/getTrucks", getTrucks);
 router.get("/getTrucks/:id", getTruckById);
 router.put("/updateTruck/:id",upload.single("image"), authenticateUser, authorization("admin"), updateTruck);
+router.delete("/deleteTruck/:id", authenticateUser, authorization("admin"), deleteTruck);
 
 export default router;

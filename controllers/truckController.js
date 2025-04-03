@@ -45,7 +45,7 @@ export const addTruck = async (req, res) => {
         });
         res.status(201).json(newTruck);        
     } catch (error) {
-        console.error("Error in addTruck:", error);
+        // console.error("Error in addTruck:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 };
@@ -59,7 +59,7 @@ export const getTrucks = async (req, res) => {
         }
         res.status(200).json(trucks);
     } catch (error) {
-        console.error("Error in getTrucks:", error);
+        // console.error("Error in getTrucks:", error);
         res.status(500).json({ message: "Internal server error" });
     }
 };
@@ -74,7 +74,7 @@ export const getTruckById = async (req, res) =>{
         res.status(200).json(truck);
         
     } catch (error) {
-        console.error("Error in getTruckById:", error);
+        // console.error("Error in getTruckById:", error);
         res.status(500).json({ message: "Internal server error" });
         
     }
@@ -109,8 +109,27 @@ export const updateTruck = async (req, res) => {
         res.status(200).json({message: "Truck updated successfully" , truck});
         
     } catch (error) {
-        console.error("Error in updateTruck:", error);
+        // console.error("Error in updateTruck:", error);
         res.status(500).json({ error: "Internal server error" });
         
     }
+}
+
+export const deleteTruck = async (req, res) =>{
+    const truckId = req.params.id;
+    try {
+        const truck = await Truck.findById(truckId);
+        if (!truck) {
+            return res.status(404).json({ message: "Truck not found" });
+        }
+        await cloudinary.v2.uploader.destroy(truck.image.public_id); // Delete image from Cloudinary
+        await Truck.findByIdAndDelete(truckId); // Delete truck from database
+        res.status(200).json({ message: "Truck deleted successfully" });
+        
+    } catch (error) {
+        // console.error("Error in deleteTruck:", error);
+        res.status(500).json({ message: "Internal server error" });
+        
+    }
+    
 }
