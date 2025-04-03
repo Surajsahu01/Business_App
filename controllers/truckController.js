@@ -79,4 +79,38 @@ export const getTruckById = async (req, res) =>{
         
     }
 }
-       
+    
+export const updateTruck = async (req, res) => {
+    const truckId = req.params.id;
+    const { companyName, modelNumber, description } = req.body;
+    if (!companyName || !modelNumber || !description) {
+        return res.status(400).json({ message: "Please enter all fields" });
+    }
+    try {
+        const truck = await Truck.findById(truckId);
+        if (!truck) {
+            return res.status(404).json({ message: "Truck not found" });
+        }
+        truck.companyName = companyName;
+        truck.modelNumber = modelNumber;
+        truck.description = description;
+        if (req.file) {
+            const result = await cloudinary.v2.uploader.upload(req.file.path, {
+                folder: 'trucks',
+                width: 500,
+                height: 500,            
+                crop: 'scale',
+                quality: 80,
+            });
+            truck.image.public_id = result.public_id;
+            truck.image.url = result.secure_url;
+        }
+        await truck.save();
+        res.status(200).json({message: "Truck updated successfully" , truck});
+        
+    } catch (error) {
+        console.error("Error in updateTruck:", error);
+        res.status(500).json({ error: "Internal server error" });
+        
+    }
+}
