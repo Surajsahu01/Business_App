@@ -20,24 +20,24 @@ const authenticateUser = async (req, res, next) => {
     }
     try {
         const decoded = jwt.verify(token.replace('Bearer ', ''), process.env.JWT_SECRET);
-        req.user = decoded.id;
+        req.userId = decoded.id;
 
         const userExists = await User.findById(decoded.id);
         if (!userExists) {
-            return res.status(401).json({ message: "Unauthorized: Invalid token" });
+            return res.status(401).json({ error: "Unauthorized: Invalid token" });
         }
-        req.userExists = {id: userExists._id, email: userExists.email, role: userExists.role};
-          
+        // req.userExists = {id: userExists._id, email: userExists.email, role: userExists.role};
+        req.userExists = userExists; // Store the user object in req.userExists  
         next();
     } catch (error) {
-        return res.status(401).json({ message: "Unauthorized: Invalid token" });
+        return res.status(401).json({ error: "Unauthorized: Invalid token" });
     }
 };
 
 const authorization = (...roles) => {
     return (req, res, next) => {
         if (!roles.includes(req.userExists.role)) {
-            return res.status(403).json({ message: "Forbidden: You do not have permission to access this resource" });
+            return res.status(403).json({ error: "Forbidden: You do not have permission to access this resource" });
         }
         next();
     };

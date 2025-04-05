@@ -2,11 +2,10 @@ import User from "../models/userModels.js";
 import bcrypt from "bcrypt";
 import { sendVerificationCode } from "../utils/sendVerificationCode.js";
 import { generateToken } from "../authentication/userAuth.js";
-import jwt from "jsonwebtoken";
 import dotenv from "dotenv";
 dotenv.config();
 
-const tokenBlacklist = new Set(); 
+// const tokenBlacklist = new Set(); 
 
 export const register = async (req, res) => {
     try {
@@ -69,9 +68,6 @@ export const verifyOTP = async (req, res) => {
             return res.status(400).json({ message: "User not found or OTP expired" });
         }
 
-        // console.log("User Verification Code (stored hash):", user.verificationCode);
-        // console.log("User-entered OTP:", otp);
-
         if (!user.verificationCode || typeof user.verificationCode !== "string") {
             return res.status(400).json({ message: "OTP is invalid or expired" });
         }
@@ -81,11 +77,6 @@ export const verifyOTP = async (req, res) => {
         if (!isMatch) {
             return res.status(400).json({ message: "Invalid OTP" });
         }
-
-        // ✅ Ensure `user` is an instance of User
-        // if (!(user instanceof User)) {
-        //     return res.status(500).json({ message: "Internal error: Invalid user instance" });
-        // }
 
         user.accountVerified = true;
         user.verificationCode = undefined;
@@ -100,9 +91,7 @@ export const verifyOTP = async (req, res) => {
     } catch (error) {
         console.error("Error in verifying OTP:", error);
         res.status(500).json({ error: "Internal Server Error" });
-        // if (!res.headersSent) {
-        //     return res.status(500).json({ message: "Internal server error" });
-        // }
+        
     }
 };
 
@@ -133,25 +122,6 @@ export const loginUser = async (req, res) => {
     }
 };
 
-// export const logoutUser = async (req, res) => {
-//     const token = req.headers.authorization?.split(" ")[1];
-//     if(!token){
-//         return res.status(401).json({ message: "Unauthorized: No token provided" });
-//     }
-//     try {
-//         const decoded = jwt.verify(token, process.env.JWT_SECRET);
-//         tokenBlacklist.add(token); // Add token to blacklist
-//         // res.clearCookie("token", {
-//         //     httpOnly: true,
-//         //     secure: true,
-//         //     sameSite: "none",
-//         // });
-//         res.status(200).json({ message: "Logged out successfully" });
-//     } catch (error) {
-//         console.error("Error in logout:", error);
-//         res.status(500).json({ message: "Internal server error" });
-//     }
-// };
 
 export const logoutUser = async (req, res) => {
     try {

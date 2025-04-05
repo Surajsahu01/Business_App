@@ -4,6 +4,7 @@ import cookieParser from "cookie-parser";
 import cors from "cors";
 import authrouter from "./routes/authRoutes.js";
 import addTruckRoutes from "./routes/addTruckRoutes.js";
+import userServiceRoutes from "./routes/userServiceRoutes.js";
 
 
 
@@ -21,3 +22,4 @@ app.use(express.urlencoded({extended: true}));
 
 app.use("/api/v1", authrouter);
 app.use("/api/v1/trucks", addTruckRoutes);
+app.use("/api/v1/userService", userServiceRoutes);
